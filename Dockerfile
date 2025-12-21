@@ -81,6 +81,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Publish Livewire assets as static files for production
 RUN php artisan livewire:publish --assets
 
+# Create storage symlink for public file access
+RUN php artisan storage:link
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache

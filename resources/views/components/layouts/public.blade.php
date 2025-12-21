@@ -8,6 +8,7 @@
     <title>{{ $title ?? 'Validation BAT - Marketing Keymex' }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="h-full bg-gray-50">
     <div class="min-h-full flex flex-col">
@@ -34,5 +35,6 @@
             </div>
         </footer>
     </div>
+    @livewireScripts
 </body>
 </html>

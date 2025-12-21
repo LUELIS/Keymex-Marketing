@@ -78,6 +78,9 @@ COPY --from=node-builder --chown=www-data:www-data /app/public/build ./public/bu
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Publish Livewire assets as static files for production
+RUN php artisan livewire:publish --assets
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
@@ -87,7 +90,9 @@ RUN mkdir -p /var/log/supervisor /var/log/php /var/log/nginx
 
 # Create entrypoint script
 # Note: route:cache removed - incompatible with Livewire dynamic routes
+# route:clear ensures no stale cached routes block Livewire
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'php artisan route:clear' >> /entrypoint.sh && \
     echo 'php artisan config:cache' >> /entrypoint.sh && \
     echo 'php artisan view:cache' >> /entrypoint.sh && \
     echo 'if [ "$RUN_MIGRATIONS" = "true" ]; then php artisan migrate --force; fi' >> /entrypoint.sh && \

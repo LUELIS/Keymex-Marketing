@@ -114,7 +114,21 @@ return [
     |
     */
 
+    // In production, assets are published to public/vendor/livewire
+    // Set to false to use @livewireStyles/@livewireScripts directives
     'inject_assets' => true,
+
+    /*
+    |---------------------------------------------------------------------------
+    | Asset URL
+    |---------------------------------------------------------------------------
+    |
+    | When using published assets, Livewire will serve from /vendor/livewire
+    | This is more reliable in production than dynamic route injection
+    |
+    */
+
+    'asset_url' => null,
 
     /*
     |---------------------------------------------------------------------------

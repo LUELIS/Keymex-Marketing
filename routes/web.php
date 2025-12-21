@@ -1,0 +1,70 @@
+<?php
+
+use App\Http\Controllers\Auth\MicrosoftController;
+use App\Livewire\Orders\OrderCreate;
+use App\Livewire\Orders\OrderIndex;
+use App\Livewire\Orders\OrderShow;
+use App\Livewire\Properties\PropertyIndex;
+use App\Livewire\Settings\OrderSettings;
+use App\Livewire\StandaloneBat\BatCreate;
+use App\Livewire\StandaloneBat\BatIndex;
+use App\Livewire\StandaloneBat\BatValidation;
+use App\Livewire\Stats\Dashboard;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', function () {
+    return redirect()->route('orders.index');
+});
+
+// Routes d'authentification Microsoft
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+
+// Dev login (uniquement si DEV_LOGIN_ENABLED=true)
+Route::post('/dev-login', function () {
+    if (!config('app.dev_login_enabled')) {
+        abort(403);
+    }
+
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@keymex.fr'],
+        [
+            'name' => 'Admin Test',
+            'microsoft_id' => 'dev-test-id',
+            'password' => bcrypt('dev-password'),
+        ]
+    );
+
+    auth()->login($user);
+
+    return redirect()->route('orders.index');
+})->name('dev.login');
+
+Route::get('/auth/microsoft', [MicrosoftController::class, 'redirect'])->name('auth.microsoft');
+Route::get('/auth/microsoft/callback', [MicrosoftController::class, 'callback']);
+Route::post('/logout', [MicrosoftController::class, 'logout'])->name('logout');
+
+// Routes protégées (staff)
+Route::middleware(['auth'])->group(function () {
+    // Module Commandes
+    Route::get('/commandes', OrderIndex::class)->name('orders.index');
+    Route::get('/commandes/creer', OrderCreate::class)->name('orders.create');
+    Route::get('/commandes/{order}', OrderShow::class)->name('orders.show');
+
+    // Module Biens
+    Route::get('/biens', PropertyIndex::class)->name('properties.index');
+
+    // Module Statistiques
+    Route::get('/statistiques', Dashboard::class)->name('stats.dashboard');
+
+    // Configuration
+    Route::get('/configuration/commandes', OrderSettings::class)->name('settings.orders');
+
+    // Module BAT standalone
+    Route::get('/bats', BatIndex::class)->name('standalone-bats.index');
+    Route::get('/bats/creer', BatCreate::class)->name('standalone-bats.create');
+});
+
+// Route publique pour validation BAT (avec token)
+Route::get('/bat/validation/{token}', BatValidation::class)->name('standalone-bat.validate');

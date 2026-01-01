@@ -81,7 +81,7 @@
                 </div>
                 <div class="p-6">
                     <p class="text-3xl font-bold text-gray-900">
-                        {{ number_format($compromisData['current']['total_price'] / 1000, 0, ',', ' ') }} k
+                        {{ number_format($compromisData['current']['total_commission'] / 1000, 0, ',', ' ') }} k
                     </p>
                     <p class="mt-1 text-sm text-gray-500">
                         {{ $compromisData['current']['count'] }} compromis
@@ -89,7 +89,7 @@
                 </div>
             </div>
 
-            {{-- Mois précédent --}}
+            {{-- Mois precedent --}}
             <div class="bg-white shadow rounded-lg overflow-hidden">
                 <div class="bg-gray-100 px-4 py-3">
                     <h3 class="text-sm font-medium text-gray-700">Mois precedent</h3>
@@ -97,7 +97,7 @@
                 </div>
                 <div class="p-6">
                     <p class="text-2xl font-bold text-gray-700">
-                        {{ number_format($compromisData['previous']['total_price'] / 1000, 0, ',', ' ') }} k
+                        {{ number_format($compromisData['previous']['total_commission'] / 1000, 0, ',', ' ') }} k
                     </p>
                     <p class="mt-1 text-sm text-gray-500">
                         {{ $compromisData['previous']['count'] }} compromis
@@ -119,7 +119,7 @@
                 </div>
             </div>
 
-            {{-- Même mois N-1 --}}
+            {{-- Meme mois N-1 --}}
             <div class="bg-white shadow rounded-lg overflow-hidden">
                 <div class="bg-gray-100 px-4 py-3">
                     <h3 class="text-sm font-medium text-gray-700">Meme mois N-1</h3>
@@ -127,7 +127,7 @@
                 </div>
                 <div class="p-6">
                     <p class="text-2xl font-bold text-gray-700">
-                        {{ number_format($compromisData['lastYear']['total_price'] / 1000, 0, ',', ' ') }} k
+                        {{ number_format($compromisData['lastYear']['total_commission'] / 1000, 0, ',', ' ') }} k
                     </p>
                     <p class="mt-1 text-sm text-gray-500">
                         {{ $compromisData['lastYear']['count'] }} compromis

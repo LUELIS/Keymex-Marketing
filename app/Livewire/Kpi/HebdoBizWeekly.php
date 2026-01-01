@@ -128,10 +128,10 @@ class HebdoBizWeekly extends Component
             \Log::warning('MongoDB connection error in HebdoBizWeekly: ' . $e->getMessage());
         }
 
-        // Calcul des variations
+        // Calcul des variations (sur les honoraires, pas le prix)
         $variations = [
-            'compromis_ca_vs_previous' => $this->calculateVariation($compromisData['current']['total_price'], $compromisData['previous']['total_price']),
-            'compromis_ca_vs_lastYear' => $this->calculateVariation($compromisData['current']['total_price'], $compromisData['lastYear']['total_price']),
+            'compromis_ca_vs_previous' => $this->calculateVariation($compromisData['current']['total_commission'], $compromisData['previous']['total_commission']),
+            'compromis_ca_vs_lastYear' => $this->calculateVariation($compromisData['current']['total_commission'], $compromisData['lastYear']['total_commission']),
             'mandates_vs_previous' => $this->calculateVariation($mandatesData['current']['count'], $mandatesData['previous']['count']),
             'mandates_vs_lastYear' => $this->calculateVariation($mandatesData['current']['count'], $mandatesData['lastYear']['count']),
         ];

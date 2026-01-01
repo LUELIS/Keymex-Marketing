@@ -196,18 +196,25 @@
                                 {{-- Communication RS --}}
                                 <div class="mt-2 pt-2 border-t border-gray-100">
                                     @if($canCommunicate)
-                                        <label class="flex items-center justify-between cursor-pointer">
+                                        <button wire:click="openCommunicationModal('{{ $property['id'] }}', '{{ $property['reference'] }}')"
+                                                class="w-full flex items-center justify-between text-left hover:bg-gray-50 rounded px-1 py-0.5 -mx-1 transition-colors">
                                             <div class="flex items-center gap-2">
-                                                <input type="checkbox"
-                                                       wire:click="toggleCommunication('{{ $property['id'] }}')"
-                                                       {{ $communication ? 'checked' : '' }}
-                                                       class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500" />
+                                                @if($communication)
+                                                    <span class="flex h-4 w-4 items-center justify-center rounded bg-green-500 text-white">
+                                                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </span>
+                                                @else
+                                                    <span class="flex h-4 w-4 items-center justify-center rounded border border-gray-300 bg-white">
+                                                    </span>
+                                                @endif
                                                 <span class="text-xs font-medium text-gray-700">Communication RS</span>
                                             </div>
                                             @if($communication)
-                                                <span class="text-[10px] text-gray-400">{{ $communication->action_date->format('d/m') }}</span>
+                                                <span class="text-[10px] text-gray-400">{{ $communication->action_date->format('d/m/Y') }}</span>
                                             @endif
-                                        </label>
+                                        </button>
                                     @endif
                                 </div>
                             </div>
@@ -348,6 +355,63 @@
                                     <img src="{{ $photo }}" alt="Photo" class="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity" />
                                 </a>
                             @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal Communication RS --}}
+    @if($showCommunicationModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="communication-modal-title" role="dialog" aria-modal="true">
+            <div class="flex min-h-screen items-center justify-center px-4 py-4 text-center">
+                <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" wire:click="closeCommunicationModal"></div>
+
+                <div class="relative z-10 w-full max-w-md transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                        <h3 class="text-lg font-medium text-gray-900">Communication RS - {{ $communicationPropertyRef }}</h3>
+                        <button wire:click="closeCommunicationModal" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="p-4">
+                        <label for="communication-date" class="block text-sm font-medium text-gray-700 mb-2">
+                            Date de communication
+                        </label>
+                        <input type="date"
+                               id="communication-date"
+                               wire:model="communicationDate"
+                               class="block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-keymex-red sm:text-sm" />
+                        <p class="mt-2 text-xs text-gray-500">
+                            Selectionnez la date de publication sur les reseaux sociaux (passee, aujourd'hui ou future).
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 bg-gray-50">
+                        @if($hasCommunication)
+                            <button wire:click="deleteCommunication"
+                                    class="inline-flex items-center gap-1.5 rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Supprimer
+                            </button>
+                        @else
+                            <div></div>
+                        @endif
+                        <div class="flex items-center gap-2">
+                            <button wire:click="closeCommunicationModal"
+                                    class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                Annuler
+                            </button>
+                            <button wire:click="saveCommunication"
+                                    class="rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700">
+                                Enregistrer
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,7 @@ namespace App\Livewire\Properties;
 
 use App\Models\PropertyCommunication;
 use App\Services\MongoPropertyService;
+use Carbon\Carbon;
 use Livewire\Component;
 
 class PropertyIndex extends Component
@@ -17,6 +18,13 @@ class PropertyIndex extends Component
     public bool $showPhotoModal = false;
     public array $modalPhotos = [];
     public string $modalPropertyRef = '';
+
+    // Communication RS modal
+    public bool $showCommunicationModal = false;
+    public string $communicationPropertyId = '';
+    public string $communicationPropertyRef = '';
+    public string $communicationDate = '';
+    public bool $hasCommunication = false;
 
     protected MongoPropertyService $propertyService;
 
@@ -36,20 +44,52 @@ class PropertyIndex extends Component
         $this->search = '';
     }
 
-    public function toggleCommunication(string $propertyId): void
+    public function openCommunicationModal(string $propertyId, string $propertyRef): void
     {
-        $existing = PropertyCommunication::where('property_mongo_id', $propertyId)->first();
+        $this->communicationPropertyId = $propertyId;
+        $this->communicationPropertyRef = $propertyRef;
 
+        $existing = PropertyCommunication::where('property_mongo_id', $propertyId)->first();
         if ($existing) {
-            $existing->delete();
+            $this->communicationDate = $existing->action_date->format('Y-m-d');
+            $this->hasCommunication = true;
         } else {
-            PropertyCommunication::create([
-                'property_mongo_id' => $propertyId,
-                'action_type' => 'rs',
-                'action_date' => now(),
-                'created_by' => auth()->id(),
-            ]);
+            $this->communicationDate = now()->format('Y-m-d');
+            $this->hasCommunication = false;
         }
+
+        $this->showCommunicationModal = true;
+    }
+
+    public function closeCommunicationModal(): void
+    {
+        $this->showCommunicationModal = false;
+        $this->communicationPropertyId = '';
+        $this->communicationPropertyRef = '';
+        $this->communicationDate = '';
+        $this->hasCommunication = false;
+    }
+
+    public function saveCommunication(): void
+    {
+        $date = Carbon::parse($this->communicationDate);
+
+        PropertyCommunication::updateOrCreate(
+            ['property_mongo_id' => $this->communicationPropertyId],
+            [
+                'action_type' => 'rs',
+                'action_date' => $date,
+                'created_by' => auth()->id(),
+            ]
+        );
+
+        $this->closeCommunicationModal();
+    }
+
+    public function deleteCommunication(): void
+    {
+        PropertyCommunication::where('property_mongo_id', $this->communicationPropertyId)->delete();
+        $this->closeCommunicationModal();
     }
 
     public function openPhotoModal(array $photos, string $propertyRef): void

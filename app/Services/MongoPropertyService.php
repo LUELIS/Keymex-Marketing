@@ -844,51 +844,104 @@ class MongoPropertyService
     }
 
     /**
-     * Récupère TOUS les conseillers avec leur CA sur une période
+     * Récupère TOUS les conseillers actifs avec leur CA sur une période
      * Utilisé pour la page KeyPerformeurs
+     * Inclut tous les conseillers actifs, même ceux avec 0€ de CA
      */
     public function getAllConseillersCA(Carbon $startDate, Carbon $endDate): array
     {
-        $allCompromis = $this->getAllCompromisData();
+        // 1. D'abord récupérer TOUS les conseillers actifs
+        $allActiveAdvisors = $this->getAllActiveAdvisors();
 
+        // 2. Initialiser tous les conseillers avec 0 CA
+        $conseillers = [];
+        foreach ($allActiveAdvisors as $advisor) {
+            $conseillers[$advisor['id']] = [
+                'id' => $advisor['id'],
+                'name' => $advisor['name'],
+                'ca' => 0,
+                'nb_compromis' => 0,
+            ];
+        }
+
+        // 3. Ajouter les données CA des compromis
+        $allCompromis = $this->getAllCompromisData();
         $startStr = $startDate->format('Y-m-d');
         $endStr = $endDate->format('Y-m-d');
 
-        $conseillers = [];
-
         foreach ($allCompromis as $c) {
             if ($c['date'] >= $startStr && $c['date'] <= $endStr) {
-                $advisorId = $c['advisor_id'] ?: 'unknown';
+                $advisorId = $c['advisor_id'] ?: 0;
                 $ca = $c['seller_fees'] + $c['buyer_fees'];
 
-                if (!isset($conseillers[$advisorId])) {
-                    $conseillers[$advisorId] = [
-                        'id' => $advisorId,
-                        'name' => $c['advisor_name'],
-                        'ca' => 0,
-                        'nb_compromis' => 0,
-                    ];
+                // Si le conseiller existe dans notre liste (actif)
+                if (isset($conseillers[$advisorId])) {
+                    $conseillers[$advisorId]['ca'] += $ca;
+                    $conseillers[$advisorId]['nb_compromis']++;
                 }
-
-                $conseillers[$advisorId]['ca'] += $ca;
-                $conseillers[$advisorId]['nb_compromis']++;
             }
         }
 
-        // Ajouter la catégorie à chaque conseiller
+        // 4. Ajouter la catégorie à chaque conseiller
         foreach ($conseillers as &$conseiller) {
             $conseiller['category'] = \App\Livewire\Kpi\KeyPerformeurs::getCategory($conseiller['ca']);
             $conseiller['ca_formatted'] = number_format($conseiller['ca'] / 1000, 0, ',', ' ') . 'K€';
         }
 
-        // Trier par CA décroissant
+        // 5. Trier par CA décroissant
         usort($conseillers, fn($a, $b) => $b['ca'] <=> $a['ca']);
 
-        // Ajouter le classement
+        // 6. Ajouter le classement
         foreach ($conseillers as $index => &$conseiller) {
             $conseiller['rank'] = $index + 1;
         }
 
         return $conseillers;
+    }
+
+    /**
+     * Cache des conseillers actifs (durée: 10 minutes)
+     */
+    protected const ADVISORS_CACHE_KEY = 'kpi_all_active_advisors';
+    protected const ADVISORS_CACHE_TTL = 600; // 10 minutes
+
+    /**
+     * Récupère tous les conseillers actifs depuis MongoDB
+     * Mis en cache pour 10 minutes
+     */
+    protected function getAllActiveAdvisors(): array
+    {
+        return Cache::remember(self::ADVISORS_CACHE_KEY, self::ADVISORS_CACHE_TTL, function () {
+            $agencySlug = config('keymex.agence.slug', 'keymex-synergie');
+            $db = $this->getMongoDb();
+            $advisorsCollection = $db->selectCollection('advisors');
+
+            $cursor = $advisorsCollection->find([
+                'agency_slug' => $agencySlug,
+                'raw_data.status' => 1, // Seulement les conseillers actifs
+            ], [
+                'projection' => [
+                    'immofacile_id' => 1,
+                    'raw_data.firstname' => 1,
+                    'raw_data.lastname' => 1,
+                ]
+            ]);
+
+            $advisors = [];
+            foreach ($cursor as $advisor) {
+                $rawData = (array) ($advisor['raw_data'] ?? []);
+                $id = (int) ($advisor['immofacile_id'] ?? 0);
+                $name = trim(($rawData['firstname'] ?? '') . ' ' . ($rawData['lastname'] ?? ''));
+
+                if ($id > 0 && $name) {
+                    $advisors[] = [
+                        'id' => $id,
+                        'name' => $name,
+                    ];
+                }
+            }
+
+            return $advisors;
+        });
     }
 }

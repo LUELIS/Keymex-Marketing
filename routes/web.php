@@ -17,6 +17,8 @@ use App\Livewire\Kpi\HebdoBizMonthly;
 use App\Livewire\Kpi\HebdoBizWeekly;
 use App\Livewire\Kpi\KeyPerformeurs;
 use App\Livewire\Stats\Dashboard;
+use App\Livewire\Signature\MySignature;
+use App\Http\Controllers\SignatureAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -93,3 +95,9 @@ Route::middleware(['auth'])->group(function () {
 
 // Route publique pour validation BAT (avec token)
 Route::get('/bat/validation/{token}', BatValidation::class)->name('standalone-bat.validate');
+
+// Routes publiques pour la signature email
+Route::get('/ma-signature', MySignature::class)->name('signature.my');
+Route::get('/ma-signature/auth', [SignatureAuthController::class, 'redirect'])->name('signature.auth');
+Route::get('/ma-signature/callback', [SignatureAuthController::class, 'callback'])->name('signature.callback');
+Route::post('/ma-signature/logout', [SignatureAuthController::class, 'logout'])->name('signature.logout');

@@ -947,4 +947,39 @@ class MongoPropertyService
             return $advisors;
         });
     }
+
+    /**
+     * Recherche un conseiller par email dans MongoDB
+     * Retourne les données complètes du conseiller ou null
+     */
+    public function getAdvisorByEmail(string $email): ?array
+    {
+        $agencySlug = config('keymex.agence.slug', 'keymex-synergie');
+        $db = $this->getMongoDb();
+        $advisorsCollection = $db->selectCollection('advisors');
+
+        // Recherche insensible à la casse
+        $advisor = $advisorsCollection->findOne([
+            'agency_slug' => $agencySlug,
+            'raw_data.email' => ['$regex' => '^' . preg_quote($email, '/') . '$', '$options' => 'i'],
+        ]);
+
+        if (!$advisor) {
+            return null;
+        }
+
+        $rawData = (array) ($advisor['raw_data'] ?? []);
+
+        return [
+            'id' => (int) ($advisor['immofacile_id'] ?? 0),
+            'firstname' => $rawData['firstname'] ?? '',
+            'lastname' => $rawData['lastname'] ?? '',
+            'email' => $rawData['email'] ?? '',
+            'mobile_phone' => $rawData['mobile_phone'] ?? '',
+            'phone' => $rawData['phone'] ?? '',
+            'picture' => $rawData['picture'] ?? '',
+            'status' => (int) ($rawData['status'] ?? 0),
+            'job_title' => 'Conseiller Immobilier',
+        ];
+    }
 }

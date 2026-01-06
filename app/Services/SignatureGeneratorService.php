@@ -139,7 +139,18 @@ HTML;
         $logoUrl = '';
         if ($brand->logo_path) {
             $baseUrl = rtrim(config('app.url'), '/');
-            $logoUrl = $baseUrl . '/storage/' . $brand->logo_path;
+            // Si c'est une URL absolue, l'utiliser directement
+            if (str_starts_with($brand->logo_path, 'http://') || str_starts_with($brand->logo_path, 'https://')) {
+                $logoUrl = $brand->logo_path;
+            }
+            // Si c'est un chemin public (images/, assets/, etc.), pas de /storage/
+            elseif (str_starts_with($brand->logo_path, 'images/') || str_starts_with($brand->logo_path, 'assets/')) {
+                $logoUrl = $baseUrl . '/' . $brand->logo_path;
+            }
+            // Sinon c'est dans storage
+            else {
+                $logoUrl = $baseUrl . '/storage/' . $brand->logo_path;
+            }
         }
 
         $replacements = [

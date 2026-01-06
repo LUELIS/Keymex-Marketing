@@ -187,12 +187,52 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">URL Photo</label>
-                                    <input type="url" wire:model="editPictureUrl"
-                                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-keymex-red focus:border-keymex-red"
-                                           placeholder="https://example.com/photo.jpg">
-                                    <p class="mt-1 text-xs text-gray-500">Entrez l'URL d'une image hebergee</p>
+                                {{-- Photo section --}}
+                                <div class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                                    <label class="block text-xs font-medium text-gray-700 mb-2">Photo de profil</label>
+
+                                    {{-- Preview actuelle --}}
+                                    @if($editPictureUrl)
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <img src="{{ $editPictureUrl }}" alt="Photo" class="w-16 h-16 rounded-full object-cover border-2 border-keymex-red">
+                                            <div class="text-xs text-gray-600">Photo actuelle</div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Upload photo --}}
+                                    <div class="mb-2">
+                                        <label class="block text-xs text-gray-500 mb-1">Telecharger une photo</label>
+                                        <input
+                                            type="file"
+                                            wire:model="photoUpload"
+                                            accept="image/*"
+                                            class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-keymex-red file:text-white hover:file:bg-keymex-red/90 file:cursor-pointer"
+                                        >
+                                        <div wire:loading wire:target="photoUpload" class="text-xs text-keymex-red mt-1">
+                                            <svg class="inline-block w-3 h-3 animate-spin mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Telechargement...
+                                        </div>
+                                        @error('photoUpload')
+                                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <div class="flex items-center gap-2 my-2">
+                                        <div class="flex-1 border-t border-gray-300"></div>
+                                        <span class="text-[10px] text-gray-400">OU</span>
+                                        <div class="flex-1 border-t border-gray-300"></div>
+                                    </div>
+
+                                    {{-- URL alternative --}}
+                                    <div>
+                                        <label class="block text-xs text-gray-500 mb-1">URL externe</label>
+                                        <input type="url" wire:model="editPictureUrl"
+                                               class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-keymex-red focus:border-keymex-red"
+                                               placeholder="https://example.com/photo.jpg">
+                                    </div>
                                 </div>
 
                                 <div class="border-t border-gray-200 pt-4">

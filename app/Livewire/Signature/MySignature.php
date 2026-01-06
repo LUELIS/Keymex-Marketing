@@ -247,6 +247,34 @@ class MySignature extends Component
         }
     }
 
+    public function updatedPhotoUpload(): void
+    {
+        $this->validate([
+            'photoUpload' => 'image|max:2048',
+        ]);
+
+        try {
+            // Stocker la photo
+            $path = $this->photoUpload->store('advisor-photos', 'public');
+
+            // Generer l'URL absolue
+            $this->editPictureUrl = rtrim(config('app.url'), '/') . '/storage/' . $path;
+
+            // Mettre a jour l'advisor
+            $this->advisor['picture'] = $this->editPictureUrl;
+
+            // Regenerer la signature avec la nouvelle photo
+            $this->generateSignature();
+
+            // Reset l'upload
+            $this->photoUpload = null;
+
+        } catch (\Exception $e) {
+            $this->error = 'Erreur lors du telechargement de la photo: ' . $e->getMessage();
+            report($e);
+        }
+    }
+
     public function updatedSelectedTemplateId(): void
     {
         $template = SignatureTemplate::find($this->selectedTemplateId);

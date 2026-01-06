@@ -67,11 +67,16 @@
                     <div class="pt-3 mt-2 border-t border-white/20">
                         <p class="px-3 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">KPI</p>
                         <a href="{{ route('kpi.weekly') }}"
-                           class="{{ request()->routeIs('kpi.*') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                           class="{{ request()->routeIs('kpi.weekly') || request()->routeIs('kpi.monthly') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                             </svg>
                             <span>Hebdo Biz</span>
+                        </a>
+                        <a href="{{ route('kpi.performeurs') }}"
+                           class="{{ request()->routeIs('kpi.performeurs') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                            <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center">🏆</span>
+                            <span>KeyPerformeurs</span>
                         </a>
                     </div>
 
@@ -199,11 +204,16 @@
                     <!-- Groupe KPI -->
                     <p class="px-4 py-2 mt-2 text-xs font-semibold text-white/50 uppercase tracking-wider border-t border-white/20 pt-4">KPI</p>
                     <a href="{{ route('kpi.weekly') }}"
-                       class="{{ request()->routeIs('kpi.*') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                       class="{{ request()->routeIs('kpi.weekly') || request()->routeIs('kpi.monthly') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                         </svg>
                         Hebdo Biz
+                    </a>
+                    <a href="{{ route('kpi.performeurs') }}"
+                       class="{{ request()->routeIs('kpi.performeurs') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                        <span class="w-5 h-5 flex items-center justify-center">🏆</span>
+                        KeyPerformeurs
                     </a>
 
                     <!-- Groupe Reseaux sociaux -->

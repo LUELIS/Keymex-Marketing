@@ -1,19 +1,43 @@
 <div class="space-y-8">
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Hebdo Biz - Mensuel</h1>
-            <p class="mt-1 text-sm text-gray-500">
-                Performance mensuelle - {{ $selectedMonth['start']->translatedFormat('F Y') }}
-            </p>
+    {{-- Header avec gradient --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-keymex-red via-red-600 to-red-700 p-6 shadow-xl">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"30\" height=\"30\" viewBox=\"0 0 30 30\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M1.22676 0C1.91374 0 2.45351 0.539773 2.45351 1.22676C2.45351 1.91374 1.91374 2.45351 1.22676 2.45351C0.539773 2.45351 0 1.91374 0 1.22676C0 0.539773 0.539773 0 1.22676 0Z\" fill=\"rgba(255,255,255,0.07)\"%3E%3C/path%3E%3C/svg%3E')] opacity-60"></div>
+        <div class="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-white/5"></div>
+        <div class="absolute bottom-0 left-0 -mb-16 -ml-16 h-48 w-48 rounded-full bg-white/5"></div>
+
+        <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            {{-- Titre et description --}}
+            <div class="flex items-center gap-4">
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+                    <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Hebdo Biz</h1>
+                    <p class="mt-0.5 text-sm text-white/80">
+                        Performance mensuelle &bull; {{ $selectedMonth['start']->translatedFormat('F Y') }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Switch Hebdo/Mensuel --}}
+            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl p-1.5">
+                <a href="{{ route('kpi.weekly') }}"
+                   class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Hebdomadaire
+                </a>
+                <span class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-keymex-red shadow-sm">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Mensuelle
+                </span>
+            </div>
         </div>
-        <a href="{{ route('kpi.weekly') }}"
-           class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Vue hebdomadaire
-        </a>
     </div>
 
     {{-- Navigation mois --}}
@@ -326,7 +350,7 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-12">#</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Conseiller</th>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">CA</th>
+                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">CA HT</th>
                                     <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Compromis</th>
                                 </tr>
                             </thead>
@@ -348,7 +372,7 @@
                                             <span class="font-medium text-gray-900">{{ $kpi['name'] }}</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1000, 0, ',', ' ') }} k&euro;</span>
+                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1.20 / 1000, 0, ',', ' ') }} k&euro;</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-center">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">

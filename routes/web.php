@@ -15,6 +15,7 @@ use App\Livewire\StandaloneBat\BatShow;
 use App\Livewire\StandaloneBat\BatValidation;
 use App\Livewire\Kpi\HebdoBizMonthly;
 use App\Livewire\Kpi\HebdoBizWeekly;
+use App\Livewire\Kpi\KeyPerformeurs;
 use App\Livewire\Stats\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -77,6 +78,7 @@ Route::middleware(['auth'])->group(function () {
     // Module KPI Hebdo Biz
     Route::get('/kpi/hebdomadaire', HebdoBizWeekly::class)->name('kpi.weekly');
     Route::get('/kpi/mensuel', HebdoBizMonthly::class)->name('kpi.monthly');
+    Route::get('/kpi/key-performeurs', KeyPerformeurs::class)->name('kpi.performeurs');
 
     // Configuration
     Route::get('/configuration/commandes', OrderSettings::class)->name('settings.orders');

@@ -31,6 +31,12 @@ class MongoPropertyService
     protected const COMPROMIS_CACHE_TTL = 600; // 10 minutes
 
     /**
+     * Cache des mandats exclusifs préchargés (durée: 10 minutes)
+     */
+    protected const MANDATS_EXCLU_CACHE_KEY = 'kpi_all_mandats_exclusifs_data';
+    protected const MANDATS_EXCLU_CACHE_TTL = 600; // 10 minutes
+
+    /**
      * Obtient l'instance MongoDB (singleton)
      */
     protected function getMongoDb(): Database
@@ -202,62 +208,107 @@ class MongoPropertyService
     }
 
     /**
-     * Récupère le Top 10 Mandats Exclusifs par conseiller
-     * Optimisé avec pré-filtre par année côté MongoDB
+     * Précharge TOUS les mandats exclusifs en un seul appel MongoDB
+     * et les met en cache pour 10 minutes
+     * NOTE: Utilise created_at comme date car le critère 163 (date_mandat)
+     * n'est rempli que pour ~9% des mandats
      */
-    public function getTopMandatsExclusParConseiller(Carbon $startDate, Carbon $endDate, int $limit = 10): array
+    protected function getAllMandatsExclusifsData(): array
     {
-        // Pré-filtre par année côté MongoDB
-        $years = [];
-        $currentYear = $startDate->year;
-        while ($currentYear <= $endDate->year) {
-            $years[] = $currentYear;
-            $currentYear++;
-        }
-        $yearPattern = '/(' . implode('|', $years) . ')$/';
+        return Cache::remember(self::MANDATS_EXCLU_CACHE_KEY, self::MANDATS_EXCLU_CACHE_TTL, function () {
+            $agencySlug = config('keymex.agence.slug', 'keymex-synergie');
+            $db = $this->getMongoDb();
+            $collection = $db->selectCollection('properties');
 
-        $query = DB::connection($this->connection)
-            ->table($this->collection)
-            ->whereNotNull('raw_data.mandate_date')
-            ->where('raw_data.mandate_date', '!=', '')
-            ->where('raw_data.mandate_date', 'regexp', $yearPattern)
-            ->where('raw_data.mandate_type', 'Exclusif') // Filtrer uniquement les mandats exclusifs
-            ->where(function($q) {
-                $q->whereNull('raw_data.date_annulation')
-                  ->orWhere('raw_data.date_annulation', '')
-                  ->orWhere('raw_data.date_annulation', '0000-00-00');
-            })
-            ->get();
+            // Requête optimisée: filtrer les mandats exclusifs côté MongoDB
+            $cursor = $collection->find([
+                'agency_slug' => $agencySlug,
+                'raw_data.criteres_text' => [
+                    '$elemMatch' => [
+                        'critere_id' => 124,
+                        'critere_value' => 'Exclusif'
+                    ]
+                ]
+            ], [
+                'projection' => [
+                    'raw_data.created_at' => 1,
+                    'raw_data.suivi_par' => 1
+                ]
+            ]);
 
-        $conseillers = [];
-        foreach ($query as $item) {
-            // Filtrer par date exacte en PHP (mois et jour)
-            $mandateDateStr = $item->raw_data['mandate_date'] ?? null;
-            if (!$mandateDateStr) continue;
+            $allMandats = [];
 
-            try {
-                $mandateDate = Carbon::createFromFormat('d/m/Y', $mandateDateStr);
-                if (!$mandateDate->between($startDate, $endDate)) continue;
-            } catch (\Exception $e) {
-                continue;
-            }
+            foreach ($cursor as $property) {
+                $rawData = (array) ($property['raw_data'] ?? []);
 
-            $adminFollowed = $item->raw_data['admin_followed'] ?? null;
-            if (!$adminFollowed) continue;
+                // Utiliser raw_data.created_at comme date du mandat
+                $createdAt = $rawData['created_at'] ?? null;
+                if (!$createdAt) {
+                    continue;
+                }
 
-            $advisorId = $adminFollowed['id'] ?? 'unknown';
-            $advisorName = trim(($adminFollowed['firstname'] ?? '') . ' ' . ($adminFollowed['lastname'] ?? ''));
-            if (!$advisorName || $advisorName === ' ') $advisorName = 'Non attribué';
+                // Convertir la date au format Y-m-d pour comparaison
+                try {
+                    if ($createdAt instanceof \MongoDB\BSON\UTCDateTime) {
+                        $date = $createdAt->toDateTime();
+                        $datePart = $date->format('Y-m-d');
+                    } else {
+                        // Format ISO 8601: 2025-11-18T13:15:33+01:00
+                        $date = Carbon::parse($createdAt);
+                        $datePart = $date->format('Y-m-d');
+                    }
+                } catch (\Exception $e) {
+                    continue;
+                }
 
-            if (!isset($conseillers[$advisorId])) {
-                $conseillers[$advisorId] = [
-                    'id' => $advisorId,
-                    'name' => $advisorName,
-                    'nb_mandats' => 0,
+                // Conseiller (suivi_par)
+                $rawData = (array) ($property['raw_data'] ?? []);
+                $suiviPar = (array) ($rawData['suivi_par'] ?? []);
+                $advisorId = (int) ($suiviPar['id'] ?? 0);
+                $advisorName = trim(($suiviPar['firstname'] ?? '') . ' ' . ($suiviPar['lastname'] ?? ''));
+                if (!$advisorName || $advisorName === ' ' || !$advisorId) {
+                    $advisorName = 'Non attribué';
+                    $advisorId = 0;
+                }
+
+                $allMandats[] = [
+                    'date' => $datePart,
+                    'advisor_id' => $advisorId,
+                    'advisor_name' => $advisorName,
                 ];
             }
 
-            $conseillers[$advisorId]['nb_mandats']++;
+            return $allMandats;
+        });
+    }
+
+    /**
+     * Récupère le Top 10 Mandats Exclusifs par conseiller
+     * OPTIMISÉ: utilise le cache des mandats préchargés
+     */
+    public function getTopMandatsExclusParConseiller(Carbon $startDate, Carbon $endDate, int $limit = 10): array
+    {
+        $allMandats = $this->getAllMandatsExclusifsData();
+
+        $startStr = $startDate->format('Y-m-d');
+        $endStr = $endDate->format('Y-m-d');
+
+        $conseillers = [];
+
+        foreach ($allMandats as $m) {
+            if ($m['date'] >= $startStr && $m['date'] <= $endStr) {
+                $advisorId = $m['advisor_id'] ?: 'unknown';
+
+                if (!isset($conseillers[$advisorId])) {
+                    $conseillers[$advisorId] = [
+                        'id' => $advisorId,
+                        'name' => $m['advisor_name'],
+                        'nb_mandats' => 0,
+                    ];
+                }
+
+                $conseillers[$advisorId]['nb_mandats']++;
+            }
         }
 
         usort($conseillers, fn($a, $b) => $b['nb_mandats'] <=> $a['nb_mandats']);
@@ -272,49 +323,25 @@ class MongoPropertyService
 
     /**
      * Récupère les KPI des mandats exclusifs pour une période donnée
-     * La date de mandat est au format dd/mm/yyyy dans mandate_date
-     * Optimisé avec pré-filtre par année côté MongoDB
+     * OPTIMISÉ: utilise le cache des mandats préchargés
      */
     public function getMandatesExclusStats(Carbon $startDate, Carbon $endDate): array
     {
-        // Construire le pattern pour filtrer par année(s) côté MongoDB
-        // Format: dd/mm/yyyy donc on cherche les dates qui contiennent /YYYY
-        $years = [];
-        $currentYear = $startDate->year;
-        while ($currentYear <= $endDate->year) {
-            $years[] = $currentYear;
-            $currentYear++;
-        }
-        $yearPattern = '/(' . implode('|', $years) . ')$/';
+        $allMandats = $this->getAllMandatsExclusifsData();
 
-        $query = DB::connection($this->connection)
-            ->table($this->collection)
-            ->whereNotNull('raw_data.mandate_date')
-            ->where('raw_data.mandate_date', '!=', '')
-            ->where('raw_data.mandate_date', 'regexp', $yearPattern)
-            ->where('raw_data.mandate_type', 'Exclusif') // Filtrer uniquement les mandats exclusifs
-            ->where(function($q) {
-                $q->whereNull('raw_data.date_annulation')
-                  ->orWhere('raw_data.date_annulation', '')
-                  ->orWhere('raw_data.date_annulation', '0000-00-00');
-            })
-            ->get();
+        $startStr = $startDate->format('Y-m-d');
+        $endStr = $endDate->format('Y-m-d');
 
-        // Filtrer par date exacte en PHP (mois et jour)
-        $filtered = $query->filter(function($item) use ($startDate, $endDate) {
-            $mandateDateStr = $item->raw_data['mandate_date'] ?? null;
-            if (!$mandateDateStr) return false;
+        $count = 0;
 
-            try {
-                $mandateDate = Carbon::createFromFormat('d/m/Y', $mandateDateStr);
-                return $mandateDate->between($startDate, $endDate);
-            } catch (\Exception $e) {
-                return false;
+        foreach ($allMandats as $m) {
+            if ($m['date'] >= $startStr && $m['date'] <= $endStr) {
+                $count++;
             }
-        });
+        }
 
         return [
-            'count' => $filtered->count(),
+            'count' => $count,
         ];
     }
 
@@ -814,5 +841,54 @@ class MongoPropertyService
             'compromis_delay_days' => $compromisDelay,
             'sale_duration_days' => $saleDuration,
         ];
+    }
+
+    /**
+     * Récupère TOUS les conseillers avec leur CA sur une période
+     * Utilisé pour la page KeyPerformeurs
+     */
+    public function getAllConseillersCA(Carbon $startDate, Carbon $endDate): array
+    {
+        $allCompromis = $this->getAllCompromisData();
+
+        $startStr = $startDate->format('Y-m-d');
+        $endStr = $endDate->format('Y-m-d');
+
+        $conseillers = [];
+
+        foreach ($allCompromis as $c) {
+            if ($c['date'] >= $startStr && $c['date'] <= $endStr) {
+                $advisorId = $c['advisor_id'] ?: 'unknown';
+                $ca = $c['seller_fees'] + $c['buyer_fees'];
+
+                if (!isset($conseillers[$advisorId])) {
+                    $conseillers[$advisorId] = [
+                        'id' => $advisorId,
+                        'name' => $c['advisor_name'],
+                        'ca' => 0,
+                        'nb_compromis' => 0,
+                    ];
+                }
+
+                $conseillers[$advisorId]['ca'] += $ca;
+                $conseillers[$advisorId]['nb_compromis']++;
+            }
+        }
+
+        // Ajouter la catégorie à chaque conseiller
+        foreach ($conseillers as &$conseiller) {
+            $conseiller['category'] = \App\Livewire\Kpi\KeyPerformeurs::getCategory($conseiller['ca']);
+            $conseiller['ca_formatted'] = number_format($conseiller['ca'] / 1000, 0, ',', ' ') . 'K€';
+        }
+
+        // Trier par CA décroissant
+        usort($conseillers, fn($a, $b) => $b['ca'] <=> $a['ca']);
+
+        // Ajouter le classement
+        foreach ($conseillers as $index => &$conseiller) {
+            $conseiller['rank'] = $index + 1;
+        }
+
+        return $conseillers;
     }
 }

@@ -33,6 +33,7 @@ class StandaloneBatLog extends Model
             'file_updated' => 'Fichier mis a jour',
             'token_regenerated' => 'Lien regenere',
             'converted_to_order' => 'Converti en commande',
+            'email_resent' => 'Email renvoye',
             default => $this->event,
         };
     }
@@ -48,6 +49,7 @@ class StandaloneBatLog extends Model
             'file_updated' => 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12',
             'token_regenerated' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
             'converted_to_order' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+            'email_resent' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
             default => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
         };
     }
@@ -63,6 +65,7 @@ class StandaloneBatLog extends Model
             'file_updated' => 'purple',
             'token_regenerated' => 'yellow',
             'converted_to_order' => 'emerald',
+            'email_resent' => 'yellow',
             default => 'gray',
         };
     }

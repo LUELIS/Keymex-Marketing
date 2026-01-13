@@ -89,6 +89,17 @@ class BatShow extends Component
         }
     }
 
+    public function resendEmail(): void
+    {
+        if ($this->bat->advisor_email && in_array($this->bat->status, ['sent', 'modifications_requested', 'refused'])) {
+            \Illuminate\Support\Facades\Mail::to($this->bat->advisor_email)
+                ->send(new \App\Mail\BatValidationMail($this->bat));
+
+            $this->bat->logEvent('email_resent');
+            session()->flash('success', 'Email de validation renvoye a ' . $this->bat->advisor_email);
+        }
+    }
+
     public function regenerateToken(): void
     {
         $this->bat->generateNewToken();

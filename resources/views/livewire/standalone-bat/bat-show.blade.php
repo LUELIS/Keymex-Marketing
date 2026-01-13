@@ -434,6 +434,26 @@
                             Copier le lien de validation
                         </button>
 
+                        @if(in_array($bat->status, ['sent', 'refused', 'modifications_requested']))
+                            <button
+                                type="button"
+                                wire:click="resendEmail"
+                                wire:loading.attr="disabled"
+                                wire:target="resendEmail"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
+                            >
+                                <svg wire:loading.remove wire:target="resendEmail" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                <svg wire:loading wire:target="resendEmail" class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                <span wire:loading.remove wire:target="resendEmail">Renvoyer l'email</span>
+                                <span wire:loading wire:target="resendEmail">Envoi...</span>
+                            </button>
+                        @endif
+
                         <button
                             type="button"
                             wire:click="regenerateToken"

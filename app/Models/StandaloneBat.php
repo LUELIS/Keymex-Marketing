@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class StandaloneBat extends Model
@@ -22,6 +23,7 @@ class StandaloneBat extends Model
         'file_path',
         'file_name',
         'file_mime',
+        'storage_disk',
         'title',
         'description',
         'grammage',
@@ -234,5 +236,71 @@ class StandaloneBat extends Model
     public function getValidationUrlAttribute(): string
     {
         return route('standalone-bat.validate', $this->validation_token);
+    }
+
+    /**
+     * Retourne l'URL publique du fichier BAT
+     */
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        $disk = $this->storage_disk ?? 'public';
+
+        if ($disk === 's3') {
+            // Pour S3, on utilise l'URL publique ou signée
+            return Storage::disk('s3')->url($this->file_path);
+        }
+
+        // Pour le stockage local
+        return asset('storage/' . $this->file_path);
+    }
+
+    /**
+     * Retourne une URL temporaire signée (utile pour S3 privé)
+     */
+    public function getSignedFileUrl(int $minutes = 60): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        $disk = $this->storage_disk ?? 'public';
+
+        if ($disk === 's3') {
+            return Storage::disk('s3')->temporaryUrl($this->file_path, now()->addMinutes($minutes));
+        }
+
+        return $this->file_url;
+    }
+
+    /**
+     * Vérifie si le fichier existe sur le storage
+     */
+    public function fileExists(): bool
+    {
+        if (!$this->file_path) {
+            return false;
+        }
+
+        $disk = $this->storage_disk ?? 'public';
+
+        return Storage::disk($disk)->exists($this->file_path);
+    }
+
+    /**
+     * Supprime le fichier du storage
+     */
+    public function deleteFile(): bool
+    {
+        if (!$this->file_path) {
+            return false;
+        }
+
+        $disk = $this->storage_disk ?? 'public';
+
+        return Storage::disk($disk)->delete($this->file_path);
     }
 }

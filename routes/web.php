@@ -9,7 +9,9 @@ use App\Livewire\Properties\PropertyIndex;
 use App\Livewire\Settings\OrderSettings;
 use App\Livewire\Settings\SignatureSettings;
 use App\Livewire\Settings\SmtpSettings;
+use App\Livewire\Settings\SocialMediaSettings;
 use App\Livewire\Settings\SsoSettings;
+use App\Livewire\Settings\StorageSettings;
 use App\Livewire\StandaloneBat\BatCreate;
 use App\Livewire\StandaloneBat\BatIndex;
 use App\Livewire\StandaloneBat\BatShow;
@@ -18,6 +20,8 @@ use App\Livewire\Kpi\HebdoBizMonthly;
 use App\Livewire\Kpi\HebdoBizWeekly;
 use App\Livewire\Kpi\KeyPerformeurs;
 use App\Livewire\Stats\Dashboard;
+use App\Livewire\SocialMedia\Dashboard as SocialMediaDashboard;
+use App\Livewire\SocialMedia\AiAssistant as SocialMediaAiAssistant;
 use App\Livewire\Signature\MySignature;
 use App\Http\Controllers\SignatureAuthController;
 use Illuminate\Support\Facades\Route;
@@ -88,11 +92,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/configuration/signatures', SignatureSettings::class)->name('settings.signatures');
     Route::get('/configuration/sso', SsoSettings::class)->name('settings.sso');
     Route::get('/configuration/smtp', SmtpSettings::class)->name('settings.smtp');
+    Route::get('/configuration/stockage', StorageSettings::class)->name('settings.storage');
+    Route::get('/configuration/social-media', SocialMediaSettings::class)->name('settings.social-media');
 
     // Module BAT standalone
     Route::get('/bats', BatIndex::class)->name('standalone-bats.index');
     Route::get('/bats/creer', BatCreate::class)->name('standalone-bats.create');
     Route::get('/bats/{bat}', BatShow::class)->name('standalone-bats.show');
+
+    // Module Social Media Analytics
+    Route::get('/social-media', SocialMediaDashboard::class)->name('social-media.dashboard');
+    Route::get('/social-media/assistant', SocialMediaAiAssistant::class)->name('social-media.assistant');
 });
 
 // Route publique pour validation BAT (avec token)

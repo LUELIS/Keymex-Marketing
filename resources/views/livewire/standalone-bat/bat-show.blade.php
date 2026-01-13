@@ -130,7 +130,7 @@
                         </div>
                     </div>
                     <a
-                        href="{{ asset('storage/' . $bat->file_path) }}"
+                        href="{{ $bat->file_url }}"
                         download="{{ $bat->file_name }}"
                         class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-keymex-red bg-keymex-red/10 rounded-lg hover:bg-keymex-red/20 transition-colors"
                     >
@@ -146,14 +146,14 @@
                     @if(str_starts_with($bat->file_mime, 'image/'))
                         <div class="flex items-center justify-center p-4 min-h-[400px]">
                             <img
-                                src="{{ asset('storage/' . $bat->file_path) }}"
+                                src="{{ $bat->file_url }}"
                                 alt="{{ $bat->file_name }}"
                                 class="max-w-full h-auto max-h-[500px] rounded-lg shadow-2xl object-contain"
                             >
                         </div>
                     @else
                         <iframe
-                            src="{{ asset('storage/' . $bat->file_path) }}#toolbar=0&navpanes=0&view=FitH"
+                            src="{{ $bat->file_url }}#toolbar=0&navpanes=0&view=FitH"
                             class="w-full h-[500px] border-0"
                         ></iframe>
                     @endif

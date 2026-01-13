@@ -113,7 +113,7 @@
                             </div>
                         </div>
                         <a
-                            href="{{ asset('storage/' . $bat->file_path) }}"
+                            href="{{ $bat->file_url }}"
                             download="{{ $bat->file_name }}"
                             class="flex-shrink-0 inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-keymex-red bg-keymex-red/10 rounded-lg hover:bg-keymex-red/20 transition-colors"
                         >
@@ -130,7 +130,7 @@
                             {{-- Image Preview --}}
                             <div class="flex items-center justify-center p-4 h-full min-h-[60vh] lg:min-h-[75vh]">
                                 <img
-                                    src="{{ asset('storage/' . $bat->file_path) }}"
+                                    src="{{ $bat->file_url }}"
                                     alt="{{ $bat->file_name }}"
                                     class="max-w-full h-auto max-h-full rounded-lg shadow-2xl object-contain"
                                 >
@@ -157,7 +157,7 @@
 
                                 {{-- PDF iframe --}}
                                 <iframe
-                                    src="{{ asset('storage/' . $bat->file_path) }}#toolbar=0&navpanes=0&view=FitH"
+                                    src="{{ $bat->file_url }}#toolbar=0&navpanes=0&view=FitH"
                                     class="w-full h-full border-0"
                                     style="background: #1f2937;"
                                     x-on:load="pdfLoading = false"

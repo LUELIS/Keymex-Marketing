@@ -5,6 +5,7 @@ namespace App\Livewire\StandaloneBat;
 use App\Models\Category;
 use App\Models\Format;
 use App\Models\StandaloneBat;
+use App\Models\StorageSetting;
 use App\Models\SupportType;
 use App\Services\MongoAdvisorService;
 use Livewire\Component;
@@ -103,9 +104,10 @@ class BatCreate extends Component
             return;
         }
 
-        // Store file
+        // Store file (utilise S3 si configuré, sinon local)
+        $disk = StorageSetting::getDisk();
         $fileName = 'bat_' . time() . '_' . uniqid() . '.' . $this->batFile->extension();
-        $filePath = $this->batFile->storeAs('standalone-bats', $fileName, 'public');
+        $filePath = $this->batFile->storeAs('standalone-bats', $fileName, $disk);
 
         // Create BAT
         $bat = StandaloneBat::create([
@@ -119,6 +121,7 @@ class BatCreate extends Component
             'file_path' => $filePath,
             'file_name' => $this->batFile->getClientOriginalName(),
             'file_mime' => $this->batFile->getMimeType(),
+            'storage_disk' => $disk,
             'title' => $this->title ?: null,
             'description' => $this->description ?: null,
             'grammage' => $this->grammage ?: null,

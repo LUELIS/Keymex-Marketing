@@ -5,6 +5,7 @@ namespace App\Livewire\StandaloneBat;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\StandaloneBat;
+use App\Models\StorageSetting;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -45,15 +46,17 @@ class BatShow extends Component
         ]);
 
         $oldFileName = $this->bat->file_name;
+        $oldDisk = $this->bat->storage_disk ?? 'public';
+        $newDisk = StorageSetting::getDisk();
 
-        // Delete old file
+        // Delete old file from its original disk
         if ($this->bat->file_path) {
-            Storage::disk('public')->delete($this->bat->file_path);
+            Storage::disk($oldDisk)->delete($this->bat->file_path);
         }
 
-        // Store new file
+        // Store new file on current configured disk
         $fileName = 'bat_' . time() . '_' . uniqid() . '.' . $this->newFile->extension();
-        $filePath = $this->newFile->storeAs('standalone-bats', $fileName, 'public');
+        $filePath = $this->newFile->storeAs('standalone-bats', $fileName, $newDisk);
         $newFileName = $this->newFile->getClientOriginalName();
 
         // Update BAT
@@ -61,6 +64,7 @@ class BatShow extends Component
             'file_path' => $filePath,
             'file_name' => $newFileName,
             'file_mime' => $this->newFile->getMimeType(),
+            'storage_disk' => $newDisk,
             'status' => 'draft', // Reset to draft after update
             'client_comment' => null, // Clear previous comment
             'responded_at' => null,

@@ -83,6 +83,20 @@
                     <!-- Groupe Reseaux sociaux -->
                     <div class="pt-3 mt-2 border-t border-white/20">
                         <p class="px-3 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">Reseaux sociaux</p>
+                        <a href="{{ route('social-media.dashboard') }}"
+                           class="{{ request()->routeIs('social-media.dashboard') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Analytics</span>
+                        </a>
+                        <a href="{{ route('social-media.assistant') }}"
+                           class="{{ request()->routeIs('social-media.assistant') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                            </svg>
+                            <span>Assistant IA</span>
+                        </a>
                         <a href="{{ route('properties.for-sale') }}"
                            class="{{ request()->routeIs('properties.for-sale') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
                             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +144,20 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                             <span>Email SMTP</span>
+                        </a>
+                        <a href="{{ route('settings.storage') }}"
+                           class="{{ request()->routeIs('settings.storage') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                            </svg>
+                            <span>Stockage S3</span>
+                        </a>
+                        <a href="{{ route('settings.social-media') }}"
+                           class="{{ request()->routeIs('settings.social-media') ? 'bg-white/20 shadow-lg' : 'hover:bg-white/10' }} flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-white font-medium transition-all duration-200">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+                            </svg>
+                            <span>Social Media</span>
                         </a>
                     </div>
                 </nav>
@@ -225,6 +253,20 @@
 
                     <!-- Groupe Reseaux sociaux -->
                     <p class="px-4 py-2 mt-2 text-xs font-semibold text-white/50 uppercase tracking-wider border-t border-white/20 pt-4">Reseaux sociaux</p>
+                    <a href="{{ route('social-media.dashboard') }}"
+                       class="{{ request()->routeIs('social-media.dashboard') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="{{ route('social-media.assistant') }}"
+                       class="{{ request()->routeIs('social-media.assistant') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                        </svg>
+                        Assistant IA
+                    </a>
                     <a href="{{ route('properties.for-sale') }}"
                        class="{{ request()->routeIs('properties.for-sale') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,6 +312,20 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                         Email SMTP
+                    </a>
+                    <a href="{{ route('settings.storage') }}"
+                       class="{{ request()->routeIs('settings.storage') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                        Stockage S3
+                    </a>
+                    <a href="{{ route('settings.social-media') }}"
+                       class="{{ request()->routeIs('settings.social-media') ? 'bg-white/20' : '' }} flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>
+                        </svg>
+                        Social Media
                     </a>
                 </nav>
                 @auth

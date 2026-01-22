@@ -53,18 +53,37 @@
     {{-- Filters --}}
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div class="flex flex-col sm:flex-row gap-4">
-            <div class="flex-1">
+            {{-- Search Input --}}
+            <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Rechercher par conseiller, titre..."
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-keymex-red focus:ring-keymex-red"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm placeholder-gray-400 focus:bg-white focus:border-keymex-red focus:ring-2 focus:ring-keymex-red/20 transition-all duration-200"
                 >
+                <div wire:loading wire:target="search" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <svg class="h-4 w-4 text-keymex-red animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </div>
             </div>
-            <div class="sm:w-48">
+
+            {{-- Status Filter --}}
+            <div class="sm:w-56 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                </div>
                 <select
                     wire:model.live="statusFilter"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-keymex-red focus:ring-keymex-red"
+                    class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:bg-white focus:border-keymex-red focus:ring-2 focus:ring-keymex-red/20 transition-all duration-200 appearance-none cursor-pointer"
                 >
                     <option value="">Tous les statuts</option>
                     <option value="draft">Brouillon</option>
@@ -74,6 +93,11 @@
                     <option value="modifications_requested">Modifications</option>
                     <option value="converted">Converti</option>
                 </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
             </div>
         </div>
     </div>

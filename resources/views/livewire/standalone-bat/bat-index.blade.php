@@ -145,148 +145,233 @@
     </div>
 
     {{-- BAT List --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BAT</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conseiller</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($bats as $bat)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center gap-3">
-                                    <div class="flex-shrink-0 h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center">
-                                        @if(str_contains($bat->file_mime, 'pdf'))
-                                            <svg class="h-5 w-5 text-keymex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                            </svg>
-                                        @else
-                                            <svg class="h-5 w-5 text-keymex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <a href="{{ route('standalone-bats.show', $bat) }}" wire:navigate class="text-sm font-medium text-gray-900 hover:text-keymex-red transition-colors">
-                                            {{ $bat->title ?: 'BAT #' . $bat->id }}
-                                        </a>
-                                        <div class="text-xs text-gray-500">{{ $bat->file_name }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ $bat->advisor_name }}</div>
-                                <div class="text-xs text-gray-500">{{ $bat->advisor_email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @php
-                                    $statusColors = [
-                                        'draft' => 'bg-gray-100 text-gray-700',
-                                        'sent' => 'bg-yellow-100 text-yellow-700',
-                                        'validated' => 'bg-green-100 text-green-700',
-                                        'refused' => 'bg-red-100 text-red-700',
-                                        'modifications_requested' => 'bg-orange-100 text-orange-700',
-                                        'converted' => 'bg-red-100 text-keymex-red-hover',
-                                    ];
-                                @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$bat->status] ?? 'bg-gray-100 text-gray-700' }}">
-                                    {{ $bat->status_label }}
-                                </span>
-                                @if($bat->order_id)
-                                    <a href="{{ route('orders.show', $bat->order_id) }}" class="ml-2 text-xs text-keymex-red hover:underline">
-                                        Commande #{{ $bat->order_id }}
-                                    </a>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $bat->created_at->format('d/m/Y H:i') }}
-                                @if($bat->sent_at)
-                                    <div class="text-xs">Envoye: {{ $bat->sent_at->format('d/m/Y') }}</div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end gap-2">
-                                    {{-- View details --}}
-                                    <a href="{{ route('standalone-bats.show', $bat) }}" wire:navigate
-                                       class="p-2 text-gray-400 hover:text-keymex-red transition-colors" title="Voir les details">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </a>
-
-                                    @if($bat->status === 'draft')
-                                        {{-- Send --}}
-                                        <button wire:click="sendBat({{ $bat->id }})"
-                                                class="p-2 text-gray-400 hover:text-green-600 transition-colors" title="Envoyer pour validation">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                            </svg>
-                                        </button>
-                                    @endif
-
-                                    @if(in_array($bat->status, ['sent', 'validated', 'refused', 'modifications_requested']))
-                                        {{-- Copy link --}}
-                                        <button wire:click="copyValidationLink({{ $bat->id }})"
-                                                class="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Copier le lien">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
-                                            </svg>
-                                        </button>
-
-                                        {{-- Regenerate token --}}
-                                        <button wire:click="regenerateToken({{ $bat->id }})"
-                                                class="p-2 text-gray-400 hover:text-yellow-600 transition-colors" title="Regenerer le lien">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                            </svg>
-                                        </button>
-                                    @endif
-
-                                    @if($bat->canBeConvertedToOrder())
-                                        {{-- Convert to order --}}
-                                        <button wire:click="openConvertModal({{ $bat->id }})"
-                                                class="p-2 text-gray-400 hover:text-keymex-red transition-colors" title="Convertir en commande">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                            </svg>
-                                        </button>
-                                    @endif
-
-                                    {{-- Delete (only for draft or sent) --}}
-                                    @if(in_array($bat->status, ['draft', 'sent']))
-                                        <button wire:click="confirmDelete({{ $bat->id }})"
-                                                class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Supprimer">
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                                Aucun BAT trouve.
-                                <a href="{{ route('standalone-bats.create') }}" class="text-keymex-red hover:underline">Creer un nouveau BAT</a>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {{-- Table Header --}}
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 border-b border-gray-100">
+            <div class="grid grid-cols-12 gap-4 px-6 py-4">
+                <div class="col-span-4 flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    BAT
+                </div>
+                <div class="col-span-3 flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Conseiller
+                </div>
+                <div class="col-span-2 flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Statut
+                </div>
+                <div class="col-span-2 flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Date
+                </div>
+                <div class="col-span-1 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                    Actions
+                </div>
+            </div>
         </div>
 
+        {{-- Table Body --}}
+        <div class="divide-y divide-gray-50">
+            @forelse($bats as $index => $bat)
+                <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gradient-to-r hover:from-red-50/30 hover:to-transparent transition-all duration-300 group">
+                    {{-- BAT Info --}}
+                    <div class="col-span-4">
+                        <div class="flex items-center gap-4">
+                            {{-- File Icon with gradient --}}
+                            <div class="relative flex-shrink-0">
+                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-keymex-red/10 to-red-100 flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
+                                    @if(str_contains($bat->file_mime, 'pdf'))
+                                        <svg class="h-6 w-6 text-keymex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                        </svg>
+                                    @else
+                                        <svg class="h-6 w-6 text-keymex-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    @endif
+                                </div>
+                                {{-- Badge ID --}}
+                                <span class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-[10px] font-bold bg-white text-gray-500 rounded-full shadow border border-gray-100">
+                                    #{{ $bat->id }}
+                                </span>
+                            </div>
+                            <div class="min-w-0">
+                                <a href="{{ route('standalone-bats.show', $bat) }}" wire:navigate class="text-sm font-semibold text-gray-900 hover:text-keymex-red transition-colors truncate block group-hover:text-keymex-red">
+                                    {{ $bat->title ?: 'BAT sans titre' }}
+                                </a>
+                                <p class="text-xs text-gray-400 truncate mt-0.5 flex items-center gap-1">
+                                    <svg class="h-3 w-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                    </svg>
+                                    {{ Str::limit($bat->file_name, 30) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Conseiller --}}
+                    <div class="col-span-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-9 w-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600 flex-shrink-0">
+                                {{ strtoupper(substr($bat->advisor_name, 0, 1)) }}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">{{ $bat->advisor_name }}</p>
+                                <p class="text-xs text-gray-400 truncate">{{ $bat->advisor_email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Statut --}}
+                    <div class="col-span-2">
+                        @php
+                            $statusConfig = [
+                                'draft' => ['bg' => 'bg-gray-100', 'text' => 'text-gray-600', 'icon' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', 'dot' => 'bg-gray-400'],
+                                'sent' => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'icon' => 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8', 'dot' => 'bg-amber-400'],
+                                'validated' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'icon' => 'M5 13l4 4L19 7', 'dot' => 'bg-emerald-400'],
+                                'refused' => ['bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'icon' => 'M6 18L18 6M6 6l12 12', 'dot' => 'bg-rose-400'],
+                                'modifications_requested' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'icon' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', 'dot' => 'bg-orange-400'],
+                                'converted' => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'dot' => 'bg-purple-400'],
+                            ];
+                            $config = $statusConfig[$bat->status] ?? $statusConfig['draft'];
+                        @endphp
+                        <div class="space-y-1.5">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium {{ $config['bg'] }} {{ $config['text'] }}">
+                                <span class="h-1.5 w-1.5 rounded-full {{ $config['dot'] }} animate-pulse"></span>
+                                {{ $bat->status_label }}
+                            </span>
+                            @if($bat->order_id)
+                                <a href="{{ route('orders.show', $bat->order_id) }}" wire:navigate class="flex items-center gap-1 text-xs text-keymex-red hover:text-keymex-red-hover transition-colors font-medium">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    Cmd #{{ $bat->order_id }}
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Date --}}
+                    <div class="col-span-2">
+                        <div class="space-y-1">
+                            <p class="text-sm font-medium text-gray-700">{{ $bat->created_at->format('d/m/Y') }}</p>
+                            <p class="text-xs text-gray-400">{{ $bat->created_at->format('H:i') }}</p>
+                            @if($bat->sent_at)
+                                <p class="text-xs text-amber-600 flex items-center gap-1">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                    </svg>
+                                    {{ $bat->sent_at->format('d/m/Y') }}
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="col-span-1">
+                        <div class="flex items-center justify-end gap-1">
+                            {{-- View --}}
+                            <a href="{{ route('standalone-bats.show', $bat) }}" wire:navigate
+                               class="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200"
+                               title="Voir">
+                                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </a>
+
+                            @if($bat->status === 'draft')
+                                <button wire:click="sendBat({{ $bat->id }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
+                                        title="Envoyer">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            @if(in_array($bat->status, ['sent', 'validated', 'refused', 'modifications_requested']))
+                                <button wire:click="copyValidationLink({{ $bat->id }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                                        title="Copier lien">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                    </svg>
+                                </button>
+
+                                <button wire:click="regenerateToken({{ $bat->id }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200"
+                                        title="Regenerer">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            @if($bat->canBeConvertedToOrder())
+                                <button wire:click="openConvertModal({{ $bat->id }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-keymex-red hover:bg-red-50 transition-all duration-200"
+                                        title="Convertir">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            @if(in_array($bat->status, ['draft', 'sent']))
+                                <button wire:click="confirmDelete({{ $bat->id }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200"
+                                        title="Supprimer">
+                                    <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                {{-- Empty State --}}
+                <div class="px-6 py-16 text-center">
+                    <div class="mx-auto h-20 w-20 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-4">
+                        <svg class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Aucun BAT trouve</h3>
+                    <p class="text-sm text-gray-500 mb-4">Commencez par creer votre premier BAT</p>
+                    <a href="{{ route('standalone-bats.create') }}" wire:navigate
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-keymex-red to-red-600 hover:from-keymex-red-hover hover:to-red-700 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Creer un BAT
+                    </a>
+                </div>
+            @endforelse
+        </div>
+
+        {{-- Pagination --}}
         @if($bats->hasPages())
-            <div class="px-6 py-4 border-t border-gray-200">
+            <div class="px-6 py-4 border-t border-gray-100 bg-gradient-to-r from-gray-50/50 to-transparent">
                 {{ $bats->links() }}
+            </div>
+        @endif
+
+        {{-- Stats Footer --}}
+        @if($bats->count() > 0)
+            <div class="px-6 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between text-xs text-gray-500">
+                <span>{{ $bats->total() }} BAT(s) au total</span>
+                <span>Page {{ $bats->currentPage() }} sur {{ $bats->lastPage() }}</span>
             </div>
         @endif
     </div>

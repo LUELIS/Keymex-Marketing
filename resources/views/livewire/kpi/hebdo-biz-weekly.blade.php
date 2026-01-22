@@ -146,13 +146,11 @@
                     <div class="mt-4 space-y-1">
                         <div class="flex items-baseline gap-2">
                             <span class="text-sm text-gray-500">HT :</span>
-                            <span class="text-2xl font-bold text-gray-900">{{ number_format($compromisData['previous']['total_commission_ht'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-lg font-medium text-gray-500">k&euro;</span>
+                            <span class="text-2xl font-bold text-gray-900">{{ number_format($compromisData['previous']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                         </div>
                         <div class="flex items-baseline gap-2">
                             <span class="text-sm text-gray-400">TTC :</span>
-                            <span class="text-xl font-semibold text-gray-600">{{ number_format($compromisData['previous']['total_commission'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-base font-medium text-gray-400">k&euro;</span>
+                            <span class="text-xl font-semibold text-gray-600">{{ number_format($compromisData['previous']['total_commission'], 2, ',', ' ') }} &euro;</span>
                         </div>
                     </div>
                     <p class="mt-2 text-sm text-gray-500">{{ $compromisData['previous']['count'] }} compromis</p>
@@ -177,13 +175,11 @@
                         <div class="mt-4 space-y-1">
                             <div class="flex items-baseline gap-2">
                                 <span class="text-sm text-white/70">HT :</span>
-                                <span class="text-3xl font-bold tracking-tight">{{ number_format($compromisData['current']['total_commission_ht'] / 1000, 0, ',', ' ') }}</span>
-                                <span class="text-xl font-medium">k&euro;</span>
+                                <span class="text-2xl font-bold tracking-tight">{{ number_format($compromisData['current']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                             </div>
                             <div class="flex items-baseline gap-2">
                                 <span class="text-sm text-white/70">TTC :</span>
-                                <span class="text-2xl font-semibold tracking-tight text-white/90">{{ number_format($compromisData['current']['total_commission'] / 1000, 0, ',', ' ') }}</span>
-                                <span class="text-lg font-medium text-white/80">k&euro;</span>
+                                <span class="text-xl font-semibold tracking-tight text-white/90">{{ number_format($compromisData['current']['total_commission'], 2, ',', ' ') }} &euro;</span>
                             </div>
                         </div>
                         <p class="mt-2 text-sm text-white/70">
@@ -220,13 +216,11 @@
                     <div class="mt-4 space-y-1">
                         <div class="flex items-baseline gap-2">
                             <span class="text-sm text-gray-500">HT :</span>
-                            <span class="text-2xl font-bold text-gray-900">{{ number_format($compromisData['lastYear']['total_commission_ht'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-lg font-medium text-gray-500">k&euro;</span>
+                            <span class="text-2xl font-bold text-gray-900">{{ number_format($compromisData['lastYear']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                         </div>
                         <div class="flex items-baseline gap-2">
                             <span class="text-sm text-gray-400">TTC :</span>
-                            <span class="text-xl font-semibold text-gray-600">{{ number_format($compromisData['lastYear']['total_commission'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-base font-medium text-gray-400">k&euro;</span>
+                            <span class="text-xl font-semibold text-gray-600">{{ number_format($compromisData['lastYear']['total_commission'], 2, ',', ' ') }} &euro;</span>
                         </div>
                     </div>
                     <p class="mt-2 text-sm text-gray-500">{{ $compromisData['lastYear']['count'] }} compromis</p>
@@ -386,7 +380,7 @@
                                             <span class="font-medium text-gray-900">{{ $kpi['name'] }}</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1.20 / 1000, 0, ',', ' ') }} k&euro;</span>
+                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1.20, 2, ',', ' ') }} &euro;</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-center">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">

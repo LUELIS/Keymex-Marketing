@@ -139,8 +139,7 @@
                 <div class="relative">
                     <p class="text-sm font-medium text-white/80">CA Compromis HT</p>
                     <div class="mt-2 flex items-baseline gap-1">
-                        <span class="text-3xl font-bold tracking-tight">{{ number_format($compromisData['current']['total_commission_ht'] / 1000, 0, ',', ' ') }}</span>
-                        <span class="text-lg font-medium text-white/80">k&euro;</span>
+                        <span class="text-2xl font-bold tracking-tight">{{ number_format($compromisData['current']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                     </div>
                     @if($variations['compromis_ca_vs_lastYear'] !== null)
                         <div class="mt-2 flex items-center gap-1">
@@ -218,8 +217,7 @@
             <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200">
                 <p class="text-sm font-medium text-gray-500">Moyenne CA/mois</p>
                 <div class="mt-2 flex items-baseline gap-1">
-                    <span class="text-3xl font-bold text-gray-900">{{ number_format($avgMonthlyCA / 1000, 0, ',', ' ') }}</span>
-                    <span class="text-lg font-medium text-gray-500">k&euro;</span>
+                    <span class="text-2xl font-bold text-gray-900">{{ number_format($avgMonthlyCA, 2, ',', ' ') }} &euro;</span>
                 </div>
                 <p class="mt-1 text-xs text-gray-400">HT sur {{ $monthsElapsed }} mois</p>
             </div>
@@ -241,7 +239,7 @@
                 <div class="space-y-6">
                     {{-- CA Compromis Chart --}}
                     <div>
-                        <h3 class="text-sm font-medium text-gray-700 mb-3">CA Compromis HT (k&euro;)</h3>
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">CA Compromis HT (&euro;)</h3>
                         <div class="flex items-end gap-2 h-32">
                             @php
                                 $maxCA = max(array_column($monthlyStats, 'compromis_ca'));
@@ -253,7 +251,7 @@
                                         @if(!$stat['is_future'])
                                             <div class="w-full max-w-8 rounded-t-lg transition-all hover:opacity-80 {{ $stat['compromis_ca'] > 0 ? 'bg-gradient-to-t from-keymex-red to-red-400' : 'bg-gray-200' }}"
                                                  style="height: {{ $stat['compromis_ca'] > 0 ? max(($stat['compromis_ca'] / $maxCA) * 100, 4) : 4 }}%;"
-                                                 title="{{ number_format($stat['compromis_ca'], 0, ',', ' ') }} k€">
+                                                 title="{{ number_format($stat['compromis_ca'] * 1000, 2, ',', ' ') }} €">
                                             </div>
                                         @else
                                             <div class="w-full max-w-8 h-1 rounded bg-gray-100"></div>
@@ -341,11 +339,11 @@
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">{{ $selectedYear['year'] }}</span>
-                            <span class="text-lg font-bold text-keymex-red">{{ number_format($compromisData['current']['total_commission_ht'] / 1000, 0, ',', ' ') }} k&euro;</span>
+                            <span class="text-sm font-bold text-keymex-red">{{ number_format($compromisData['current']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-400">{{ $lastYear['year'] }}</span>
-                            <span class="text-lg font-semibold text-gray-500">{{ number_format($compromisData['lastYear']['total_commission_ht'] / 1000, 0, ',', ' ') }} k&euro;</span>
+                            <span class="text-sm font-semibold text-gray-500">{{ number_format($compromisData['lastYear']['total_commission_ht'], 2, ',', ' ') }} &euro;</span>
                         </div>
                         <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
                             @php
@@ -450,7 +448,7 @@
                                             <span class="font-medium text-gray-900">{{ $kpi['name'] }}</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1.20 / 1000, 0, ',', ' ') }} k&euro;</span>
+                                            <span class="font-semibold text-keymex-red">{{ number_format($kpi['ca_compromis'] / 1.20, 2, ',', ' ') }} &euro;</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-center">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">

@@ -16,7 +16,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-white tracking-tight">Hebdo Biz</h1>
                     <p class="mt-0.5 text-sm text-white/80">
-                        Performance mensuelle &bull; {{ $selectedMonth['start']->translatedFormat('F Y') }}
+                        Periode personnalisee &bull; {{ $daysDiff }} jour{{ $daysDiff > 1 ? 's' : '' }}
                     </p>
                 </div>
             </div>
@@ -30,69 +30,107 @@
                     </svg>
                     Hebdo
                 </a>
-                <span class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-keymex-red shadow-sm">
+                <a href="{{ route('kpi.monthly') }}"
+                   class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     Mensuel
-                </span>
-                <a href="{{ route('kpi.custom') }}"
-                   class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
+                </a>
+                <span class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-keymex-red shadow-sm">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                     </svg>
                     Personnalise
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- Navigation mois --}}
-    <div class="flex items-center justify-center">
-        <div class="inline-flex items-center gap-2 rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-gray-200">
-            <button wire:click="previousMonth"
-                    class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                <span class="hidden sm:inline">Précédent</span>
-            </button>
-
-            <div class="flex flex-col items-center px-4 py-1 min-w-[180px]">
-                <span class="text-sm font-semibold text-gray-900">
-                    {{ $selectedMonth['start']->translatedFormat('F Y') }}
                 </span>
-                @if($isCurrentMonth)
-                    <span class="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-green-600">
-                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Mois en cours
-                    </span>
-                @else
-                    <button wire:click="currentMonth" class="mt-0.5 text-xs font-medium text-keymex-red hover:text-keymex-red-hover transition-colors">
-                        Revenir au mois en cours
-                    </button>
-                @endif
             </div>
-
-            <button wire:click="nextMonth"
-                    @if($isCurrentMonth) disabled @endif
-                    class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
-                <span class="hidden sm:inline">Suivant</span>
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
         </div>
     </div>
 
-    {{-- Loading overlay centré --}}
+    {{-- Selecteur de dates --}}
+    <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 p-6">
+        <div class="flex flex-col lg:flex-row lg:items-end gap-6">
+            {{-- Date pickers --}}
+            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1.5">Date de debut</label>
+                    <input type="date"
+                           id="startDate"
+                           wire:model.live="startDate"
+                           max="{{ now()->format('Y-m-d') }}"
+                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-keymex-red focus:ring-keymex-red text-sm">
+                </div>
+                <div>
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1.5">Date de fin</label>
+                    <input type="date"
+                           id="endDate"
+                           wire:model.live="endDate"
+                           max="{{ now()->format('Y-m-d') }}"
+                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-keymex-red focus:ring-keymex-red text-sm">
+                </div>
+            </div>
+
+            {{-- Presets --}}
+            <div class="flex flex-wrap gap-2">
+                <span class="text-xs font-medium text-gray-500 self-center mr-2">Raccourcis :</span>
+                <button wire:click="setPreset('thisWeek')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Cette semaine
+                </button>
+                <button wire:click="setPreset('lastWeek')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Semaine dern.
+                </button>
+                <button wire:click="setPreset('thisMonth')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Ce mois
+                </button>
+                <button wire:click="setPreset('lastMonth')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Mois dern.
+                </button>
+                <button wire:click="setPreset('thisQuarter')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Ce trimestre
+                </button>
+                <button wire:click="setPreset('lastQuarter')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Trim. dern.
+                </button>
+                <button wire:click="setPreset('thisYear')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Cette annee
+                </button>
+                <button wire:click="setPreset('lastYear')"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Annee dern.
+                </button>
+            </div>
+        </div>
+
+        {{-- Period summary --}}
+        <div class="mt-4 pt-4 border-t border-gray-100">
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+                <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Periode selectionnee :</span>
+                <span class="font-semibold text-gray-900">
+                    {{ $selectedPeriod['start']->translatedFormat('d M Y') }} - {{ $selectedPeriod['end']->translatedFormat('d M Y') }}
+                </span>
+                <span class="text-gray-400">({{ $daysDiff }} jour{{ $daysDiff > 1 ? 's' : '' }})</span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Loading overlay centre --}}
     <div wire:loading.flex
          style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(4px);">
         <div style="background: white; border-radius: 16px; padding: 32px 48px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; align-items: center; gap: 16px;">
             <div style="position: relative; width: 56px; height: 56px;">
                 <div style="width: 56px; height: 56px; border: 4px solid rgba(200, 30, 30, 0.2); border-top-color: #c81e1e; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
-            <span style="font-size: 14px; font-weight: 500; color: #374151;">Chargement des données...</span>
+            <span style="font-size: 14px; font-weight: 500; color: #374151;">Chargement des donnees...</span>
         </div>
     </div>
     <style>
@@ -108,7 +146,7 @@
                 </svg>
                 <div>
                     <h3 class="text-sm font-semibold text-amber-800">Connexion MongoDB indisponible</h3>
-                    <p class="mt-1 text-sm text-amber-700">Les données ne sont pas accessibles pour le moment.</p>
+                    <p class="mt-1 text-sm text-amber-700">Les donnees ne sont pas accessibles pour le moment.</p>
                 </div>
             </div>
         </div>
@@ -126,40 +164,16 @@
                 <h2 class="text-lg font-semibold text-gray-900">C.A Compromis</h2>
             </div>
 
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                {{-- Mois précédent --}}
-                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Mois précédent</p>
-                            <p class="text-xs text-gray-400">{{ $previousMonth['start']->translatedFormat('F Y') }}</p>
-                        </div>
-                        <span class="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">M-1</span>
-                    </div>
-                    <div class="mt-4 space-y-1">
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-sm text-gray-500">HT :</span>
-                            <span class="text-2xl font-bold text-gray-900">{{ number_format($compromisData['previous']['total_commission_ht'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-lg font-medium text-gray-500">k&euro;</span>
-                        </div>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-sm text-gray-400">TTC :</span>
-                            <span class="text-xl font-semibold text-gray-600">{{ number_format($compromisData['previous']['total_commission'] / 1000, 0, ',', ' ') }}</span>
-                            <span class="text-base font-medium text-gray-400">k&euro;</span>
-                        </div>
-                    </div>
-                    <p class="mt-2 text-sm text-gray-500">{{ $compromisData['previous']['count'] }} compromis</p>
-                </div>
-
-                {{-- Mois en cours --}}
+            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                {{-- Periode selectionnee --}}
                 <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-keymex-red to-keymex-red-hover p-6 text-white shadow-lg">
                     <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10"></div>
                     <div class="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-white/5"></div>
                     <div class="relative">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-white/80">Mois en cours</p>
-                                <p class="text-xs text-white/60">{{ $selectedMonth['start']->translatedFormat('F Y') }}</p>
+                                <p class="text-sm font-medium text-white/80">Periode selectionnee</p>
+                                <p class="text-xs text-white/60">{{ $selectedPeriod['start']->format('d/m/Y') }} - {{ $selectedPeriod['end']->format('d/m/Y') }}</p>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,33 +194,17 @@
                             </div>
                         </div>
                         <p class="mt-2 text-sm text-white/70">
-                            {{ $compromisData['current']['count'] }} compromis signés
+                            {{ $compromisData['current']['count'] }} compromis signes
                         </p>
-                        @if($variations['compromis_ca_vs_previous'] !== null)
-                            <div class="mt-3 flex items-center gap-1.5">
-                                @if($variations['compromis_ca_vs_previous'] >= 0)
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">
-                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                                        +{{ $variations['compromis_ca_vs_previous'] }}%
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">
-                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
-                                        {{ $variations['compromis_ca_vs_previous'] }}%
-                                    </span>
-                                @endif
-                                <span class="text-xs text-white/70">vs M-1</span>
-                            </div>
-                        @endif
                     </div>
                 </div>
 
-                {{-- Même mois N-1 --}}
+                {{-- Meme periode N-1 --}}
                 <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Même mois N-1</p>
-                            <p class="text-xs text-gray-400">{{ $lastYearMonth['start']->translatedFormat('F Y') }}</p>
+                            <p class="text-sm font-medium text-gray-500">Meme periode N-1</p>
+                            <p class="text-xs text-gray-400">{{ $lastYearPeriod['start']->format('d/m/Y') }} - {{ $lastYearPeriod['end']->format('d/m/Y') }}</p>
                         </div>
                         <span class="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">N-1</span>
                     </div>
@@ -254,29 +252,16 @@
                 <h2 class="text-lg font-semibold text-gray-900">Mandats Exclusifs</h2>
             </div>
 
-            <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                {{-- Mois précédent --}}
-                <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Mois précédent</p>
-                            <p class="text-xs text-gray-400">{{ $previousMonth['start']->translatedFormat('F Y') }}</p>
-                        </div>
-                        <span class="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">M-1</span>
-                    </div>
-                    <p class="mt-4 text-3xl font-bold text-gray-900">{{ $mandatesData['previous']['count'] }}</p>
-                    <p class="mt-1 text-sm text-gray-500">mandats exclusifs</p>
-                </div>
-
-                {{-- Mois en cours --}}
+            <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                {{-- Periode selectionnee --}}
                 <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
                     <div class="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10"></div>
                     <div class="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-white/5"></div>
                     <div class="relative">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-white/80">Mois en cours</p>
-                                <p class="text-xs text-white/60">{{ $selectedMonth['start']->translatedFormat('F Y') }}</p>
+                                <p class="text-sm font-medium text-white/80">Periode selectionnee</p>
+                                <p class="text-xs text-white/60">{{ $selectedPeriod['start']->format('d/m/Y') }} - {{ $selectedPeriod['end']->format('d/m/Y') }}</p>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -285,32 +270,16 @@
                             </div>
                         </div>
                         <p class="mt-4 text-4xl font-bold tracking-tight">{{ $mandatesData['current']['count'] }}</p>
-                        <p class="mt-1 text-sm text-white/70">mandats exclusifs signés</p>
-                        @if($variations['mandates_vs_previous'] !== null)
-                            <div class="mt-3 flex items-center gap-1.5">
-                                @if($variations['mandates_vs_previous'] >= 0)
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">
-                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
-                                        +{{ $variations['mandates_vs_previous'] }}%
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">
-                                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
-                                        {{ $variations['mandates_vs_previous'] }}%
-                                    </span>
-                                @endif
-                                <span class="text-xs text-white/70">vs M-1</span>
-                            </div>
-                        @endif
+                        <p class="mt-1 text-sm text-white/70">mandats exclusifs signes</p>
                     </div>
                 </div>
 
-                {{-- Même mois N-1 --}}
+                {{-- Meme periode N-1 --}}
                 <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Même mois N-1</p>
-                            <p class="text-xs text-gray-400">{{ $lastYearMonth['start']->translatedFormat('F Y') }}</p>
+                            <p class="text-sm font-medium text-gray-500">Meme periode N-1</p>
+                            <p class="text-xs text-gray-400">{{ $lastYearPeriod['start']->format('d/m/Y') }} - {{ $lastYearPeriod['end']->format('d/m/Y') }}</p>
                         </div>
                         <span class="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">N-1</span>
                     </div>
@@ -396,7 +365,7 @@
                         <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="mt-2 text-sm text-gray-500">Aucun compromis ce mois</p>
+                        <p class="mt-2 text-sm text-gray-500">Aucun compromis sur cette periode</p>
                     </div>
                     @endif
                 </div>
@@ -456,7 +425,7 @@
                         <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p class="mt-2 text-sm text-gray-500">Aucun mandat exclusif ce mois</p>
+                        <p class="mt-2 text-sm text-gray-500">Aucun mandat exclusif sur cette periode</p>
                     </div>
                     @endif
                 </div>

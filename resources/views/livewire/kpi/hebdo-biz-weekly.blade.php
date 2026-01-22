@@ -21,20 +21,27 @@
                 </div>
             </div>
 
-            {{-- Switch Hebdo/Mensuel --}}
-            <div class="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl p-1.5">
-                <span class="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-keymex-red shadow-sm">
+            {{-- Switch Hebdo/Mensuel/Personnalise --}}
+            <div class="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl p-1.5">
+                <span class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-keymex-red shadow-sm">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Hebdomadaire
+                    Hebdo
                 </span>
                 <a href="{{ route('kpi.monthly') }}"
-                   class="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
+                   class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Mensuelle
+                    Mensuel
+                </a>
+                <a href="{{ route('kpi.custom') }}"
+                   class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-white/90 hover:bg-white/10 transition-all">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    Personnalise
                 </a>
             </div>
         </div>

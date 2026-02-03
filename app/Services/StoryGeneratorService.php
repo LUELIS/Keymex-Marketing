@@ -218,17 +218,30 @@ class StoryGeneratorService
         $filename = $prefix . '-' . Str::random(10) . '.png';
         $filepath = $this->storagePath . '/' . $filename;
 
-        Browsershot::html($html)
-            ->setNodeBinary('/home/julien/.nvm/versions/node/v22.16.0/bin/node')
-            ->setNpmBinary('/home/julien/.nvm/versions/node/v22.16.0/bin/npm')
-            ->setChromePath('/usr/bin/google-chrome')
+        $browsershot = Browsershot::html($html)
             ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox'])
             ->windowSize(1080, 1920) // Story format 9:16
             ->deviceScaleFactor(1)
             ->setScreenshotType('png')
             ->waitUntilNetworkIdle()
-            ->timeout(60)
-            ->save($filepath);
+            ->timeout(60);
+
+        // Configure paths from environment or use defaults
+        $nodeBinary = env('BROWSERSHOT_NODE_BINARY');
+        $npmBinary = env('BROWSERSHOT_NPM_BINARY');
+        $chromePath = env('BROWSERSHOT_CHROME_PATH');
+
+        if ($nodeBinary) {
+            $browsershot->setNodeBinary($nodeBinary);
+        }
+        if ($npmBinary) {
+            $browsershot->setNpmBinary($npmBinary);
+        }
+        if ($chromePath) {
+            $browsershot->setChromePath($chromePath);
+        }
+
+        $browsershot->save($filepath);
 
         return 'stories/' . $filename;
     }
